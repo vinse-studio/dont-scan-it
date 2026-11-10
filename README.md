@@ -6,6 +6,8 @@
 
 <img src="assets/dont-scan-it-cover.jpg" alt="DON'T SCAN IT — game artwork" width="640">
 
+[▶ Treyler / Watch trailer / Смотреть трейлер](https://github.com/vinse-studio/dont-scan-it/releases/tag/trailer) · [Yuklab olish / Downloads / Скачать](https://github.com/vinse-studio/dont-scan-it/releases)
+
 [O‘zbekcha](#ozbekcha) · [English](#english) · [Русский](#русский)
 
 </div>
@@ -16,6 +18,11 @@
 ## O‘zbekcha
 
 **DON'T SCAN IT** — VINSE Studio tomonidan ishlab chiqilayotgan o‘yin.
+
+### Treyler va yuklab olish
+
+- [▶ Treylerni ko‘rish](https://github.com/vinse-studio/dont-scan-it/releases/tag/trailer)
+- [Yuklab olishlar va relizlar sahifasi](https://github.com/vinse-studio/dont-scan-it/releases) — APK va Windows EXE reliz tayyor bo‘lganda shu yerda paydo bo‘ladi.
 
 ### Yuklab olish
 
@@ -36,6 +43,11 @@ O‘yin relizi tayyor bo‘lganda, yuklab olish fayllari shu repozitoriyning [Re
 
 **DON'T SCAN IT** is a game in development by VINSE Studio.
 
+### Trailer & Downloads
+
+- [▶ Watch the trailer](https://github.com/vinse-studio/dont-scan-it/releases/tag/trailer)
+- [Downloads and releases](https://github.com/vinse-studio/dont-scan-it/releases) — APK and Windows EXE builds will appear here when ready.
+
 ### Downloads
 
 When a release is ready, downloadable builds will be published in this repository’s [Releases](https://github.com/vinse-studio/dont-scan-it/releases). Planned formats: **APK for Android** and **EXE for Windows**. No public release is available yet.
@@ -54,6 +66,11 @@ When a release is ready, downloadable builds will be published in this repositor
 ## Русский
 
 **DON'T SCAN IT** — игра в разработке VINSE Studio.
+
+### Трейлер и загрузки
+
+- [▶ Смотреть трейлер](https://github.com/vinse-studio/dont-scan-it/releases/tag/trailer)
+- [Загрузки и релизы](https://github.com/vinse-studio/dont-scan-it/releases) — APK и EXE для Windows появятся здесь, когда будут готовы.
 
 ### Скачать
 
