@@ -6,7 +6,7 @@
 
 <img src="assets/dont-scan-it-cover.jpg" alt="DON'T SCAN IT — game artwork" width="640">
 
-[▶ Treyler / Watch trailer / Смотреть трейлер](https://github.com/vinse-studio/dont-scan-it/releases/tag/trailer) · [Android APK](https://github.com/vinse-studio/dont-scan-it/releases/tag/android-release)
+[▶ Treyler / Watch trailer / Смотреть трейлер](https://github.com/vinse-studio/dont-scan-it/releases/tag/trailer) · [Android APK](https://github.com/vinse-studio/dont-scan-it/releases/tag/android-release) · [Windows v1.10](https://github.com/vinse-studio/dont-scan-it/releases/tag/windows-1.10)
 
 [O‘zbekcha](#ozbekcha) · [English](#english) · [Русский](#русский)
 
@@ -23,11 +23,12 @@
 
 - [▶ Treylerni ko‘rish](https://github.com/vinse-studio/dont-scan-it/releases/tag/trailer)
 - [Android APK’ni yuklab olish](https://github.com/vinse-studio/dont-scan-it/releases/download/android-release/dont-scan-it-android.apk)
-- [Barcha relizlar](https://github.com/vinse-studio/dont-scan-it/releases) — Windows EXE keyingi relizda qo‘shiladi.
+- [Windows v1.10 ZIP’ni yuklab olish](https://github.com/vinse-studio/dont-scan-it/releases/download/windows-1.10/dont-scan-it-windows-1.10.zip)
+- [Barcha relizlar](https://github.com/vinse-studio/dont-scan-it/releases)
 
 ### Yuklab olish
 
-Android relizi mavjud: **APK** faylini yuqoridagi havoladan yuklab oling. **Windows EXE** hali chiqarilmagan; tayyor bo‘lganda [Releases](https://github.com/vinse-studio/dont-scan-it/releases) bo‘limiga qo‘shiladi.
+Android uchun **APK** va Windows 10/11 x64 uchun portativ **ZIP** to‘plami mavjud. Windows arxivini to‘liq ochib, `DON'T SCAN IT.exe` faylini `win-unpacked` ichida ishga tushiring; uni papkadan alohida ko‘chirmang.
 
 ### Rasmiy sahifalar
 
@@ -48,11 +49,12 @@ Android relizi mavjud: **APK** faylini yuqoridagi havoladan yuklab oling. **Wind
 
 - [▶ Watch the trailer](https://github.com/vinse-studio/dont-scan-it/releases/tag/trailer)
 - [Download the Android APK](https://github.com/vinse-studio/dont-scan-it/releases/download/android-release/dont-scan-it-android.apk)
-- [All releases](https://github.com/vinse-studio/dont-scan-it/releases) — Windows EXE will be added in a future release.
+- [Download Windows v1.10 ZIP](https://github.com/vinse-studio/dont-scan-it/releases/download/windows-1.10/dont-scan-it-windows-1.10.zip)
+- [All releases](https://github.com/vinse-studio/dont-scan-it/releases)
 
 ### Downloads
 
-The Android release is available now: download the **APK** using the link above. A **Windows EXE** is not included yet; it will be added to [Releases](https://github.com/vinse-studio/dont-scan-it/releases) when ready.
+The **Android APK** and portable **Windows x64 ZIP** are available. For Windows 10/11 x64, extract the full archive and run `DON'T SCAN IT.exe` from inside `win-unpacked`. Do not move the EXE out of its folder.
 
 ### Official channels
 
@@ -73,11 +75,12 @@ The Android release is available now: download the **APK** using the link above.
 
 - [▶ Смотреть трейлер](https://github.com/vinse-studio/dont-scan-it/releases/tag/trailer)
 - [Скачать APK для Android](https://github.com/vinse-studio/dont-scan-it/releases/download/android-release/dont-scan-it-android.apk)
-- [Все релизы](https://github.com/vinse-studio/dont-scan-it/releases) — EXE для Windows будет добавлен в будущем релизе.
+- [Скачать ZIP для Windows v1.10](https://github.com/vinse-studio/dont-scan-it/releases/download/windows-1.10/dont-scan-it-windows-1.10.zip)
+- [Все релизы](https://github.com/vinse-studio/dont-scan-it/releases)
 
 ### Скачать
 
-Релиз для Android уже доступен: скачайте **APK** по ссылке выше. **EXE для Windows** пока не включён; он появится в разделе [Releases](https://github.com/vinse-studio/dont-scan-it/releases), когда будет готов.
+Доступны **APK для Android** и портативный **ZIP для Windows x64**. Для Windows 10/11 x64 распакуйте весь архив и запустите `DON'T SCAN IT.exe` из папки `win-unpacked`. Не перемещайте EXE отдельно от папки.
 
 ### Официальные каналы
 
