@@ -1,0 +1,21 @@
+{
+  "name": "dont-scan-it-vinse-studio",
+  "version": "1.10.0",
+  "private": true,
+  "description": "DON'T SCAN IT — 2.5D PSX Horror Convenience Store Night Shift Game by VINSE Studio (Founder & CEO: Abubakir G'ofurjonov)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
+    "phaser": "^3.80.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.6.2",
+    "vite": "^5.4.0"
+  }
+}
