@@ -4,7 +4,7 @@
 
 **A game by VINSE Studio**
 
-<img src="assets/dont-scan-it-cover.jpg" alt="DON'T SCAN IT — game artwork" width="640">
+<img src="source/icon_preview.png" alt="DON'T SCAN IT — official game icon" width="420">
 
 [▶ Treyler / Watch trailer / Смотреть трейлер](https://github.com/vinse-studio/dont-scan-it/releases/tag/trailer) · [Android APK](https://github.com/vinse-studio/dont-scan-it/releases/tag/android-release) · [Windows v1.10](https://github.com/vinse-studio/dont-scan-it/releases/tag/windows-1.10)
 
