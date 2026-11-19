@@ -38,6 +38,7 @@ Android uchun **APK** va Windows 10/11 x64 uchun portativ **ZIP** to‘plami mav
 - [Instagram — @vinsestudio](https://www.instagram.com/vinsestudio)
 - [Telegram — @vinsestudio](https://t.me/vinsestudio)
 - [YouTube — VINSE Studio](https://www.youtube.com/@VinseStudio)
+- [itch.io — VINSE Studio](https://vinse-studio.itch.io)
 - [Aloqa: vinsestudio@gmail.com](mailto:vinsestudio@gmail.com)
 
 ---
@@ -64,6 +65,7 @@ The **Android APK** and portable **Windows x64 ZIP** are available. For Windows 
 - [Instagram — @vinsestudio](https://www.instagram.com/vinsestudio)
 - [Telegram — @vinsestudio](https://t.me/vinsestudio)
 - [YouTube — VINSE Studio](https://www.youtube.com/@VinseStudio)
+- [itch.io — VINSE Studio](https://vinse-studio.itch.io)
 - [Contact: vinsestudio@gmail.com](mailto:vinsestudio@gmail.com)
 
 ---
@@ -90,4 +92,5 @@ The **Android APK** and portable **Windows x64 ZIP** are available. For Windows 
 - [Instagram — @vinsestudio](https://www.instagram.com/vinsestudio)
 - [Telegram — @vinsestudio](https://t.me/vinsestudio)
 - [YouTube — VINSE Studio](https://www.youtube.com/@VinseStudio)
+- [itch.io — VINSE Studio](https://vinse-studio.itch.io)
 - [Контакт: vinsestudio@gmail.com](mailto:vinsestudio@gmail.com)
