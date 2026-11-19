@@ -1,0 +1,45 @@
+VINSE STUDIO SOURCE AND GAME ASSET LICENSE
+
+Copyright (c) 2026 VINSE Studio. All rights reserved except for the permissions expressly granted below.
+
+1. Covered Materials
+
+“Covered Materials” means the original game source code, artwork, audio, game assets, and VINSE Studio logo that VINSE Studio owns and makes available in this repository, including the original materials in the `source/` directory and `assets/dont-scan-it-cover.jpg`.
+
+Covered Materials do not include third-party software, libraries, tools, fonts, or other materials that are identified as third-party or are otherwise owned by someone else. Those materials remain subject to their own licenses and terms. This license does not grant rights to any third-party trademarks or content beyond rights, if any, that VINSE Studio is authorized to grant.
+
+2. Permission
+
+Subject to compliance with this license, VINSE Studio grants you a worldwide, non-exclusive, royalty-free permission to use, reproduce, modify, create derivative works from, publicly display, perform, compile, and distribute the Covered Materials, including for commercial purposes. You may distribute original or modified source code, game builds, and products that include or are based on the Covered Materials.
+
+3. Required Credit and Logo
+
+For every distributed game, application, or other product that contains or is based on Covered Materials, you must:
+
+(a) display the exact credit “Built by VINSE Studio” in a reasonably visible credits, about, title, or equivalent screen; and
+
+(b) display the official VINSE Studio logo in that product, in a reasonably visible credits, about, title, or equivalent screen. The logo file supplied with the source is `source/public/assets/sprites/vinse_intro.png`.
+
+You may reproduce and resize the supplied logo only as reasonably necessary to meet this requirement. Do not alter it in a way that damages or misrepresents the VINSE Studio identity. If you distribute the Covered Materials in source form, include this license and retain the existing copyright and attribution notices. If you distribute only a binary or other non-source form, make this license available with the distribution or in a place readily accessible to its recipients.
+
+4. Name and Endorsement
+
+Except for the attribution and limited logo display expressly required above, this license does not grant permission to use VINSE Studio’s name or logo to imply that VINSE Studio created, approved, sponsors, or endorses your modifications or product. Do not remove or misrepresent the required attribution.
+
+5. No Warranty
+
+The Covered Materials are provided “as is”, without warranties or conditions of any kind, express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement, to the extent permitted by applicable law. You are responsible for testing, maintaining, securing, and complying with applicable laws for your own products.
+
+6. Limitation of Liability
+
+To the extent permitted by applicable law, VINSE Studio and its contributors will not be liable for any claim, damages, or other liability arising from, out of, or in connection with the Covered Materials or their use or distribution.
+
+7. Termination
+
+Your permissions under this license terminate automatically if you fail to comply with its conditions. If the failure is corrected within 30 days after you become aware of it, the permissions are reinstated unless VINSE Studio has notified you otherwise. Termination does not affect rights already granted to recipients who remain in compliance with this license.
+
+8. Questions
+
+For permissions or questions about this license, contact VINSE Studio at vinsestudio@gmail.com.
+
+This is a custom license for VINSE Studio materials. It is not an OSI-approved open-source license and is not compatible with licenses that require broader rights unless the relevant rights holder separately permits that use.

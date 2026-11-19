@@ -8,7 +8,7 @@
 
 [▶ Treyler / Watch trailer / Смотреть трейлер](https://github.com/vinse-studio/dont-scan-it/releases/tag/trailer) · [Android APK](https://github.com/vinse-studio/dont-scan-it/releases/tag/android-release) · [Windows v1.10](https://github.com/vinse-studio/dont-scan-it/releases/tag/windows-1.10)
 
-[Manba kodi / Source code](https://github.com/vinse-studio/dont-scan-it/tree/main/source)
+[Manba kodi / Source code](https://github.com/vinse-studio/dont-scan-it/tree/main/source) · [License](https://github.com/vinse-studio/dont-scan-it/blob/main/LICENSE)
 
 [O‘zbekcha](#ozbekcha) · [English](#english) · [Русский](#русский)
 

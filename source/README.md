@@ -43,4 +43,4 @@ Checkout and card/cash payment mechanics are gameplay simulations only. No real 
 
 ## License
 
-No open-source license is included. Public availability of this source does not grant permission to reuse or redistribute the game code or assets; contact [VINSE Studio](mailto:vinsestudio@gmail.com) for permission.
+The original VINSE Studio source code and game assets in this repository are covered by the custom [VINSE Studio Source and Game Asset License](../LICENSE). Commercial use, modification, and redistribution are permitted subject to its conditions. Distributed products must display the exact credit **“Built by VINSE Studio”** and the official VINSE Studio logo. Third-party components remain under their respective licenses.
