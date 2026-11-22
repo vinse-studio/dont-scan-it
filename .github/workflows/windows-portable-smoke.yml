@@ -144,6 +144,7 @@ jobs:
                 readyState: document.readyState,
                 url: location.href,
                 scripts,
+                bundleReferencePresent: scripts.some(s => s.includes('/assets/index-') && s.endsWith('.js')),
                 loadedScripts: loaded,
                 canvasCount: canvases.length,
                 canvases: canvases.map(c => ({width:c.width,height:c.height,clientWidth:c.clientWidth,clientHeight:c.clientHeight})),
@@ -163,8 +164,8 @@ jobs:
             fs.writeFileSync(path.join(process.env.SMOKE_OUT_DIR, 'page-report.json'), JSON.stringify(report, null, 2));
             console.log(JSON.stringify(report, null, 2));
             ws.close();
-            if (!page || page.readyState !== 'complete' || page.canvasCount < 1 || page.loadedScripts.length < 1) {
-              throw new Error('The game page did not finish loading a JavaScript bundle and render a canvas.');
+            if (!page || page.readyState !== 'complete' || !page.bundleReferencePresent || page.canvasCount < 1 || page.canvases.some(c => c.width < 1 || c.height < 1)) {
+              throw new Error('The game page did not finish loading its bundled script reference and render a canvas.');
             }
             if (exceptions.length > 0) throw new Error('JavaScript runtime exceptions were reported by DevTools.');
           }
@@ -172,7 +173,9 @@ jobs:
           '@ | Set-Content -Path $script -Encoding utf8
           node --version
           node $script
+          $nodeExitCode = $LASTEXITCODE
           taskkill.exe /PID $process.Id /T /F | Out-String | Add-Content (Join-Path $outDir 'windows-smoke-test.txt')
+          if ($nodeExitCode -ne 0) { throw "DevTools page validation failed with exit code $nodeExitCode." }
 
       - name: Upload screenshot and test logs
         if: always()
