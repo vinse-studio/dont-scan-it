@@ -1,0 +1,97 @@
+name: Windows portable EXE smoke test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-launch:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download and verify the published EXE
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $url = 'https://github.com/vinse-studio/dont-scan-it/releases/download/windows-1.10-fixed/dont-scan-it-windows-1.10-portable.exe'
+          $exe = Join-Path $env:RUNNER_TEMP 'dont-scan-it-windows-1.10-portable.exe'
+          Invoke-WebRequest -Uri $url -OutFile $exe
+          $expected = '74c3b25cf8bd3bcaf13ef8c798f4f04584f73b5f890b8b4d9d721e13e29b2143'
+          $actual = (Get-FileHash -Path $exe -Algorithm SHA256).Hash.ToLowerInvariant()
+          Write-Host "SHA-256: $actual"
+          if ($actual -ne $expected) { throw "Checksum mismatch: expected $expected" }
+          "EXE=$exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Launch game and capture its window
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $outDir = Join-Path $env:GITHUB_WORKSPACE 'smoke-test-output'
+          New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+          $log = Join-Path $outDir 'windows-smoke-test.txt'
+          $started = Get-Date
+          "Started at: $($started.ToString('o'))" | Set-Content $log
+          $wrapper = Start-Process -FilePath $env:EXE -PassThru
+          "Portable launcher PID: $($wrapper.Id)" | Add-Content $log
+          $game = $null
+          for ($i = 0; $i -lt 90; $i++) {
+            Start-Sleep -Seconds 1
+            $wrapper.Refresh()
+            if ($wrapper.HasExited) {
+              "Portable launcher exited early with code $($wrapper.ExitCode)" | Add-Content $log
+              break
+            }
+            $game = Get-Process -Name "DON'T SCAN IT" -ErrorAction SilentlyContinue |
+              Where-Object { $_.StartTime -ge $started.AddSeconds(-5) } |
+              Sort-Object StartTime -Descending |
+              Select-Object -First 1
+            if ($game -and $game.MainWindowHandle -ne 0) { break }
+          }
+          if (-not $game -or $game.MainWindowHandle -eq 0) {
+            throw 'The game did not expose a top-level window within 90 seconds. See the launcher log above.'
+          }
+          $game.Refresh()
+          "Game PID: $($game.Id); window handle: $($game.MainWindowHandle)" | Add-Content $log
+          Add-Type -AssemblyName System.Drawing
+          Add-Type @'
+          using System;
+          using System.Runtime.InteropServices;
+          public static class Win32Smoke {
+              [StructLayout(LayoutKind.Sequential)]
+              public struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
+              [DllImport("user32.dll", SetLastError=true)]
+              public static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
+              [DllImport("user32.dll", SetLastError=true)]
+              public static extern bool SetWindowPos(IntPtr hWnd, IntPtr after, int x, int y, int cx, int cy, uint flags);
+          }
+          '@
+          [Win32Smoke]::SetWindowPos($game.MainWindowHandle, [IntPtr]::Zero, 20, 20, 960, 650, 0x0014) | Out-Null
+          Start-Sleep -Seconds 3
+          $rect = New-Object Win32Smoke+RECT
+          if (-not [Win32Smoke]::GetWindowRect($game.MainWindowHandle, [ref]$rect)) { throw 'Could not read game window bounds.' }
+          $width = [Math]::Max(1, [Math]::Min(960, $rect.Right - $rect.Left))
+          $height = [Math]::Max(1, [Math]::Min(650, $rect.Bottom - $rect.Top))
+          $bitmap = [System.Drawing.Bitmap]::new($width, $height)
+          $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+          $graphics.CopyFromScreen($rect.Left, $rect.Top, 0, 0, [System.Drawing.Size]::new($width, $height))
+          $shot = Join-Path $outDir 'game-window.png'
+          $bitmap.Save($shot, [System.Drawing.Imaging.ImageFormat]::Png)
+          $graphics.Dispose(); $bitmap.Dispose()
+          "Window screenshot: $shot ($width x $height)" | Add-Content $log
+          Write-Host "Game remained open and exposed a window. Screenshot: $shot"
+          try { $game.CloseMainWindow() | Out-Null; Start-Sleep -Seconds 5 } catch { }
+          $game.Refresh()
+          if (-not $game.HasExited) { Stop-Process -Id $game.Id -Force -ErrorAction SilentlyContinue }
+          $wrapper.Refresh()
+          if (-not $wrapper.HasExited) { Stop-Process -Id $wrapper.Id -Force -ErrorAction SilentlyContinue }
+
+      - name: Upload screenshot and test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-portable-smoke-test
+          path: smoke-test-output/
+          if-no-files-found: warn
+          retention-days: 7
