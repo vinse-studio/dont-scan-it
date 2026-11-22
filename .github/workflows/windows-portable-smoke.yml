@@ -9,7 +9,7 @@ permissions:
 jobs:
   windows-launch:
     runs-on: windows-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - name: Download and verify the published EXE
         shell: pwsh
@@ -20,11 +20,11 @@ jobs:
           Invoke-WebRequest -Uri $url -OutFile $exe
           $expected = '74c3b25cf8bd3bcaf13ef8c798f4f04584f73b5f890b8b4d9d721e13e29b2143'
           $actual = (Get-FileHash -Path $exe -Algorithm SHA256).Hash.ToLowerInvariant()
-          Write-Host "SHA-256: $actual"
-          if ($actual -ne $expected) { throw "Checksum mismatch: expected $expected" }
+          Write-Host "Portable EXE SHA-256: $actual"
+          if ($actual -ne $expected) { throw "Portable EXE checksum mismatch: expected $expected" }
           "EXE=$exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
-      - name: Launch game and capture its window
+      - name: Launch the portable EXE and verify its Electron process tree
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -32,71 +32,149 @@ jobs:
           New-Item -ItemType Directory -Force -Path $outDir | Out-Null
           $log = Join-Path $outDir 'windows-smoke-test.txt'
           $started = Get-Date
-          "Started at: $($started.ToString('o'))" | Set-Content $log
+          "Windows runner: $([Environment]::OSVersion.VersionString)" | Set-Content $log
+          "Portable launch started: $($started.ToString('o'))" | Add-Content $log
           $wrapper = Start-Process -FilePath $env:EXE -PassThru
           "Portable launcher PID: $($wrapper.Id)" | Add-Content $log
-          $game = $null
-          for ($i = 0; $i -lt 240; $i++) {
+          $main = $null; $renderer = $null
+          for ($i = 0; $i -lt 180; $i++) {
             Start-Sleep -Seconds 1
             $wrapper.Refresh()
             if ($wrapper.HasExited) {
-              "Portable launcher exited early with code $($wrapper.ExitCode)" | Add-Content $log
+              "Portable launcher exited with code $($wrapper.ExitCode)" | Add-Content $log
               break
             }
-            $game = Get-Process -Name "DON'T SCAN IT" -ErrorAction SilentlyContinue |
-              Where-Object { $_.StartTime -ge $started.AddSeconds(-5) } |
-              Sort-Object StartTime -Descending |
-              Select-Object -First 1
-            if ($game -and $game.MainWindowHandle -ne 0) { break }
+            $processes = Get-CimInstance Win32_Process -ErrorAction SilentlyContinue
+            $main = $processes | Where-Object { $_.ParentProcessId -eq $wrapper.Id -and $_.Name -eq "DON'T SCAN IT.exe" } | Select-Object -First 1
+            if ($main) {
+              $renderer = $processes | Where-Object { $_.ParentProcessId -eq $main.ProcessId -and $_.CommandLine -match '--type=renderer' } | Select-Object -First 1
+              if ($renderer) { break }
+            }
           }
-          if (-not $game -or $game.MainWindowHandle -eq 0) {
-            'Recent Windows processes:' | Add-Content $log
+          if (-not $main -or -not $renderer) {
+            'Process snapshot:' | Add-Content $log
             Get-CimInstance Win32_Process |
-              Where-Object { $_.ProcessId -eq $wrapper.Id -or $_.ParentProcessId -eq $wrapper.Id -or $_.Name -match "DON'T SCAN IT|electron|nsis" } |
+              Where-Object { $_.ProcessId -eq $wrapper.Id -or $_.ParentProcessId -eq $wrapper.Id -or $_.Name -match "DON'T SCAN IT|electron" } |
               Select-Object Name, ProcessId, ParentProcessId, CommandLine |
               Format-List | Out-String | Add-Content $log
-            'Recent temp directories:' | Add-Content $log
-            Get-ChildItem -Path $env:TEMP -Directory -ErrorAction SilentlyContinue |
-              Where-Object { $_.LastWriteTime -ge $started.AddMinutes(-5) } |
-              Select-Object FullName, LastWriteTime | Format-Table -AutoSize | Out-String | Add-Content $log
-            throw 'The game did not expose a top-level window within 240 seconds. See process/temp diagnostics in the uploaded artifact.'
+            throw 'The portable EXE did not start both the Electron main and renderer processes.'
           }
-          $game.Refresh()
-          "Game PID: $($game.Id); window handle: $($game.MainWindowHandle)" | Add-Content $log
-          Add-Type -AssemblyName System.Drawing
-          Add-Type @'
-          using System;
-          using System.Runtime.InteropServices;
-          public static class Win32Smoke {
-              [StructLayout(LayoutKind.Sequential)]
-              public struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
-              [DllImport("user32.dll", SetLastError=true)]
-              public static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
-              [DllImport("user32.dll", SetLastError=true)]
-              public static extern bool SetWindowPos(IntPtr hWnd, IntPtr after, int x, int y, int cx, int cy, uint flags);
-          }
-          '@
-          [Win32Smoke]::SetWindowPos($game.MainWindowHandle, [IntPtr]::Zero, 20, 20, 960, 650, 0x0014) | Out-Null
-          Start-Sleep -Seconds 3
-          $rect = New-Object Win32Smoke+RECT
-          if (-not [Win32Smoke]::GetWindowRect($game.MainWindowHandle, [ref]$rect)) { throw 'Could not read game window bounds.' }
-          $width = [Math]::Max(1, [Math]::Min(960, $rect.Right - $rect.Left))
-          $height = [Math]::Max(1, [Math]::Min(650, $rect.Bottom - $rect.Top))
-          $bitmap = [System.Drawing.Bitmap]::new($width, $height)
-          $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-          $graphics.CopyFromScreen($rect.Left, $rect.Top, 0, 0, [System.Drawing.Size]::new($width, $height))
-          $shot = Join-Path $outDir 'game-window.png'
-          $bitmap.Save($shot, [System.Drawing.Imaging.ImageFormat]::Png)
-          $graphics.Dispose(); $bitmap.Dispose()
-          "Window screenshot: $shot ($width x $height)" | Add-Content $log
-          Write-Host "Game remained open and exposed a window. Screenshot: $shot"
-          try { $game.CloseMainWindow() | Out-Null; Start-Sleep -Seconds 5 } catch { }
-          $game.Refresh()
-          if (-not $game.HasExited) { Stop-Process -Id $game.Id -Force -ErrorAction SilentlyContinue }
-          $wrapper.Refresh()
-          if (-not $wrapper.HasExited) { Stop-Process -Id $wrapper.Id -Force -ErrorAction SilentlyContinue }
+          "Portable EXE started main PID $($main.ProcessId) and renderer PID $($renderer.ProcessId)." | Tee-Object -FilePath $log -Append
+          taskkill.exe /PID $wrapper.Id /T /F | Out-String | Add-Content $log
 
-      - name: Upload screenshot and test log
+      - name: Set up Node.js for DevTools inspection
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Download fixed package and start the app with DevTools for page verification
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $outDir = Join-Path $env:GITHUB_WORKSPACE 'smoke-test-output'
+          $zip = Join-Path $env:RUNNER_TEMP 'dont-scan-it-windows-1.10-fixed.zip'
+          $url = 'https://github.com/vinse-studio/dont-scan-it/releases/download/windows-1.10-fixed/dont-scan-it-windows-1.10-fixed.zip'
+          Invoke-WebRequest -Uri $url -OutFile $zip
+          $expected = 'e58de158a5dddeb25ce119d4b2989ab154541d83c4a5df0dde016fbe5f1e7089'
+          $actual = (Get-FileHash -Path $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          Write-Host "Fixed ZIP SHA-256: $actual"
+          if ($actual -ne $expected) { throw "Fixed ZIP checksum mismatch: expected $expected" }
+          $extract = Join-Path $env:RUNNER_TEMP 'dont-scan-it-fixed'
+          Expand-Archive -Path $zip -DestinationPath $extract -Force
+          $app = Join-Path $extract "win-unpacked\DON'T SCAN IT.exe"
+          if (-not (Test-Path $app)) { throw "Packaged game executable missing: $app" }
+          $env:ELECTRON_ENABLE_LOGGING = '1'
+          $env:ELECTRON_ENABLE_STACK_DUMPING = '1'
+          $process = Start-Process -FilePath $app -ArgumentList @('--remote-debugging-port=9222','--enable-logging=stderr') -PassThru
+          "Direct app PID: $($process.Id)" | Add-Content (Join-Path $outDir 'windows-smoke-test.txt')
+          $target = $null
+          for ($i = 0; $i -lt 90; $i++) {
+            Start-Sleep -Seconds 1
+            try {
+              $targets = Invoke-RestMethod -Uri 'http://127.0.0.1:9222/json/list' -TimeoutSec 3
+              $target = @($targets) | Where-Object { $_.type -eq 'page' -and $_.url -like 'file:*' } | Select-Object -First 1
+              if ($target) { break }
+            } catch { }
+          }
+          if (-not $target) {
+            Get-Content (Join-Path $outDir 'windows-smoke-test.txt')
+            throw 'Electron did not expose a local page through its DevTools endpoint.'
+          }
+          $env:CDP_WS_URL = $target.webSocketDebuggerUrl
+          $env:SMOKE_OUT_DIR = $outDir
+          $script = Join-Path $outDir 'inspect-page.cjs'
+          @'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+          async function main() {
+            if (typeof WebSocket !== 'function') throw new Error('Node WebSocket API is unavailable');
+            const ws = new WebSocket(process.env.CDP_WS_URL);
+            const pending = new Map();
+            const exceptions = [];
+            let nextId = 1;
+            ws.addEventListener('message', event => {
+              const message = JSON.parse(event.data.toString());
+              if (message.method === 'Runtime.exceptionThrown') exceptions.push(message.params.exceptionDetails.text);
+              if (message.id && pending.has(message.id)) {
+                const item = pending.get(message.id); pending.delete(message.id);
+                clearTimeout(item.timer);
+                message.error ? item.reject(new Error(JSON.stringify(message.error))) : item.resolve(message);
+              }
+            });
+            await new Promise((resolve, reject) => {
+              ws.addEventListener('open', resolve, { once: true });
+              ws.addEventListener('error', reject, { once: true });
+              setTimeout(() => reject(new Error('DevTools websocket connection timeout')), 15000);
+            });
+            const send = (method, params = {}) => new Promise((resolve, reject) => {
+              const id = nextId++;
+              const timer = setTimeout(() => { pending.delete(id); reject(new Error(`${method} timed out`)); }, 15000);
+              pending.set(id, { resolve, reject, timer });
+              ws.send(JSON.stringify({ id, method, params }));
+            });
+            await send('Runtime.enable');
+            await send('Page.enable');
+            const expression = `(() => {
+              const canvases = [...document.querySelectorAll('canvas')];
+              const scripts = [...document.scripts].map(s => s.src).filter(Boolean);
+              const loaded = performance.getEntriesByType('resource').map(x => x.name).filter(x => /\\.js($|\\?)/i.test(x));
+              return {
+                title: document.title,
+                readyState: document.readyState,
+                url: location.href,
+                scripts,
+                loadedScripts: loaded,
+                canvasCount: canvases.length,
+                canvases: canvases.map(c => ({width:c.width,height:c.height,clientWidth:c.clientWidth,clientHeight:c.clientHeight})),
+                bodyBackground: getComputedStyle(document.body).backgroundColor
+              };
+            })()`;
+            let page = null;
+            for (let i = 0; i < 30; i++) {
+              const result = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
+              page = result.result?.result?.value;
+              if (page && page.canvasCount > 0 && page.loadedScripts.length > 0) break;
+              await sleep(1000);
+            }
+            const screenshot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+            fs.writeFileSync(path.join(process.env.SMOKE_OUT_DIR, 'game-window.png'), Buffer.from(screenshot.result.data, 'base64'));
+            const report = { page, exceptions };
+            fs.writeFileSync(path.join(process.env.SMOKE_OUT_DIR, 'page-report.json'), JSON.stringify(report, null, 2));
+            console.log(JSON.stringify(report, null, 2));
+            ws.close();
+            if (!page || page.readyState !== 'complete' || page.canvasCount < 1 || page.loadedScripts.length < 1) {
+              throw new Error('The game page did not finish loading a JavaScript bundle and render a canvas.');
+            }
+            if (exceptions.length > 0) throw new Error('JavaScript runtime exceptions were reported by DevTools.');
+          }
+          main().catch(error => { console.error(error); process.exitCode = 1; });
+          '@ | Set-Content -Path $script -Encoding utf8
+          node --version
+          node $script
+          taskkill.exe /PID $process.Id /T /F | Out-String | Add-Content (Join-Path $outDir 'windows-smoke-test.txt')
+
+      - name: Upload screenshot and test logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
